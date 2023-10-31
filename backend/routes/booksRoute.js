@@ -32,15 +32,16 @@ router.post('/', async (request, response) => {
 
 // Route for Get All Books from database
 router.get('/', async (request, response) => {
+    console.log("banna")
   try {
     const books = await Book.find({});
-
+    console.log('Books retrieved:', books);
     return response.status(200).json({
       count: books.length,
       data: books,
     });
   } catch (error) {
-    console.log(error.message);
+    console.log('Error fetching books:', error.message);
     response.status(500).send({ message: error.message });
   }
 });

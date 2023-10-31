@@ -6,33 +6,28 @@ const cors = require('cors');
 
 const app = express();
 
+mongoose.connect(process.env.MONGODB_URL)
+
 app.use(express.json());
-app.use(cors());
+const SERVERDEVPORT = 4741
+const CLIENTDEVPORT = 5173
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || `http://localhost:${CLIENTDEVPORT}` }))
+
+app.use('/books', booksRoute);
 
 
-app.get('/', (request, response) => {
+app.get('/*', (request, response) => {
   console.log(request);
   return response.status(234).send('Connected');
 });
 
-const PORT = process.env.PORT || 5555;
-const mongoDBURL = process.env.MONGODB_URL;
+const PORT = process.env.PORT || SERVERDEVPORT;
 
-app.use('/books', booksRoute);
+
+
 
  app.listen(PORT, () => {
    console.log(`App is listening to port: ${PORT}`);
   });
 
-  mongoose
-  .connect(mongoDBURL)
-  .then(() => {
-    console.log('Connected');
-    app.listen(PORT, () => {
-      console.log(`App is listening to port: ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.log(error);
-  });
     
