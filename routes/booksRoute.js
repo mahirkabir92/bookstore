@@ -1,10 +1,12 @@
 const express = require("express");
 const { Book } = require("../models/bookModel.js");
+const checkToken = require("../config/checkToken.js");
+const ensureLoggedIn = require("../config/ensureLoggedIn.js");
 
 const router = express.Router();
 
 // Route for Save a new Book
-router.post("/", async (request, response) => {
+router.post("/", checkToken, ensureLoggedIn, async (request, response) => {
   try {
     console.log(request.body);
     if (
@@ -20,6 +22,7 @@ router.post("/", async (request, response) => {
       title: request.body.title,
       author: request.body.author,
       publishYear: request.body.publishYear,
+      userId: request.user._id,
     };
 
     const book = await Book.create(newBook);
@@ -35,7 +38,7 @@ router.post("/", async (request, response) => {
 router.get("/", async (request, response) => {
   console.log("banna");
   try {
-    const books = await Book.find({});
+    const books = await Book.find({}).populate("userId");
     console.log("Books retrieved:", books);
     return response.status(200).json({
       count: books.length,
@@ -52,7 +55,7 @@ router.get("/:id", async (request, response) => {
   try {
     const { id } = request.params;
 
-    const book = await Book.findById(id);
+    const book = await Book.findById(id).populate("userId");
 
     return response.status(200).json(book);
   } catch (error) {
@@ -62,7 +65,7 @@ router.get("/:id", async (request, response) => {
 });
 
 // Route for Update a Book
-router.put("/:id", async (request, response) => {
+router.put("/:id", checkToken, ensureLoggedIn, async (request, response) => {
   try {
     if (
       !request.body.title ||
@@ -90,7 +93,7 @@ router.put("/:id", async (request, response) => {
 });
 
 // Route for Delete a book
-router.delete("/:id", async (request, response) => {
+router.delete("/:id", checkToken, ensureLoggedIn, async (request, response) => {
   try {
     const { id } = request.params;
 
