@@ -79,6 +79,17 @@ router.put("/:id", checkToken, ensureLoggedIn, async (request, response) => {
 
     const { id } = request.params;
 
+    const book = await Book.findById(id);
+
+    if (!book) {
+      return response.status(404).json({ message: "Book not found" });
+    }
+    if (book.userId.toString() !== request.user._id.toString()) {
+      return response
+        .status(401)
+        .json({ message: "You are not authorized to update this book" });
+    }
+
     const result = await Book.findByIdAndUpdate(id, request.body);
 
     if (!result) {
@@ -96,6 +107,18 @@ router.put("/:id", checkToken, ensureLoggedIn, async (request, response) => {
 router.delete("/:id", checkToken, ensureLoggedIn, async (request, response) => {
   try {
     const { id } = request.params;
+
+    const book = await Book.findById(id);
+
+    if (!book) {
+      return response.status(404).json({ message: "Book not found" });
+    }
+
+    if (book.userId.toString() !== request.user._id.toString()) {
+      return response
+        .status(401)
+        .json({ message: "You are not authorized to delete this book" });
+    }
 
     const result = await Book.findByIdAndDelete(id);
 
